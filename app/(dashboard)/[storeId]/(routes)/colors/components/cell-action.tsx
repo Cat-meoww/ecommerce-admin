@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from "react"
-import { SizeColumn } from "./columns"
+import { ColorColumn } from "./columns"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -17,7 +17,7 @@ import axios from "axios"
 import { AlertModal } from "@/components/modals/alert-modal"
 
 interface CellActionProps {
-    data: SizeColumn
+    data: ColorColumn
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
@@ -29,7 +29,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
     const onCopy = (id: string) => {
         navigator.clipboard.writeText(id)
-        toast.success("Size Id copied to the clipboard")
+        toast.success("Color Id copied to the clipboard")
     }
 
 
@@ -37,17 +37,17 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         try {
             setLoading(true);
 
-            await axios.delete(`/api/${params.storeId}/sizes/${data.id}`)
+            await axios.delete(`/api/${params.storeId}/colors/${data.id}`)
 
             router.refresh(); //re-sync the server componenent and set initial data
-            toast.success("Size deleted", {
+            toast.success("Color deleted", {
                 position: "top-center",
             })
 
 
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
-            toast.error("Make sure you removed all products using this size first.", {
+            toast.error("Make sure you removed all products using this color first.", {
                 position: "bottom-center"
             })
         } finally {
@@ -74,7 +74,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
                         <Copy className="mr-2 w-4 h-4" />
                         Copy  Id
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/${params.storeId}/sizes/${data.id}`)}>
+                    <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/${params.storeId}/colors/${data.id}`)}>
                         <Edit className="mr-2 w-4 h-4" />
                         Update
                     </DropdownMenuItem>
