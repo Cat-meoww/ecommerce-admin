@@ -138,7 +138,7 @@ export const BillboardForm: React.FC<ComponentProps> = ({ initialData }) => {
                                 <ImageUpload
                                     value={field.value ? [field.value] : []}
                                     disabled={loading}
-                                    onChange={(url) => { field.onChange(url) }}
+                                    onChange={(url) => { field.onChange(url[0] ?? null) }}
                                     onRemove={() => { field.onChange("") }}
                                 />
                             </FormControl>
