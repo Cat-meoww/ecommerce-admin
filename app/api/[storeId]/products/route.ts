@@ -1,6 +1,6 @@
 import prismadb from "@/lib/prismadb";
 import { auth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 
 export async function POST(req: Request, { params }: {
@@ -88,17 +88,17 @@ export async function POST(req: Request, { params }: {
         return new NextResponse("Internal Error", { status: 500 })
     }
 }
-export async function GET(req: Request, { params }: {
+export async function GET(req: NextRequest, { params }: {
     params: Promise<{ storeId: string }>
 }) {
     try {
         const slug = await params
 
-        const { searchParams } = new URL(req.url);
-        const categoryId = searchParams.get("categoryId") || undefined;
-        const colorId = searchParams.get("colorId") || undefined;
-        const sizeId = searchParams.get("sizeId") || undefined;
-        const isFeatured = searchParams.get("isFeatured");
+
+        const categoryId = req.nextUrl.searchParams.get("categoryId") || undefined;
+        const colorId = req.nextUrl.searchParams.get("colorId") || undefined;
+        const sizeId = req.nextUrl.searchParams.get("sizeId") || undefined;
+        const isFeatured = req.nextUrl.searchParams.get("isFeatured");
 
         const products = await prismadb.product.findMany({
             where: {

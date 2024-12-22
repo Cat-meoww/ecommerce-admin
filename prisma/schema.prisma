@@ -25,6 +25,7 @@ model Store {
   sizes      Size[]      @relation("StoreToSize")
   colors     Color[]     @relation("StoreToColor")
   products   Product[]   @relation("StoreToProduct")
+  Order      Order[]     @relation("StoreToOrder")
 }
 
 model Billboard {
@@ -91,7 +92,7 @@ model Color {
 model Product {
   id         String  @id @default(uuid())
   name       String
-  price      Decimal
+  price      Decimal @db.Decimal(10, 2)
   isFeatured Boolean @default(false)
   isArchived Boolean @default(false)
 
@@ -107,9 +108,10 @@ model Product {
   colorId String
   color   Color  @relation(fields: [colorId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
   images    Image[]
+  OrderItem OrderItem[]
 
   @@index([storeId])
   @@index([categoryId])
@@ -125,5 +127,36 @@ model Image {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([productId])
+}
+
+model Order {
+  id         String      @id @default(uuid())
+  storeId    String
+  store      Store       @relation("StoreToOrder", fields: [storeId], references: [id])
+  total      Decimal     @db.Decimal(10, 2)
+  orderItems OrderItem[]
+  isPaid     Boolean     @default(false)
+  phone      String      @default("")
+  address    String      @default("")
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@index([storeId])
+}
+
+model OrderItem {
+  id       String  @id @default(uuid())
+  quantity Int
+  price    Decimal @db.Decimal(10, 2)
+  subTotal Decimal @db.Decimal(10, 2)
+
+  orderId String
+  Order   Order  @relation(fields: [orderId], references: [id])
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
   @@index([productId])
 }

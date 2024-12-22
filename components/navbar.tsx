@@ -9,7 +9,6 @@ import { ModeToggle } from "@/components/mode-toggle";
 
 
 export default async function Navbar() {
-
     const { userId } = await auth();
 
     if (!userId) {
