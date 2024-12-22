@@ -4,34 +4,25 @@ import { Separator } from "@/components/ui/separator";
 import { CreditCard, IndianRupee, Package } from "lucide-react";
 import { formatter } from "@/lib/utils";
 import { Overview } from "@/components/overview";
+import { getSalesCount } from "@/actions/get-sales-count";
+import { getStockCount } from "@/actions/get-stock-count";
+import { getTotalRevenue } from "@/actions/get-total-revenue";
+import { getGraphRevenue } from "@/actions/get-graph-revenue";
 
 
 
 interface DashboardLayoutProps {
     params: Promise<{ storeId: string }>,
 }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export default async function DashboardPage(_: DashboardLayoutProps) {
+export default async function DashboardPage({ params }: DashboardLayoutProps) {
+    const slug = await params
 
 
 
-    const totalRevenue = 100;
-    const salesCount = 50;
-    const stockCount = 60
-    const graphRevenue = [
-        { name: 'Jan', total: 19 },
-        { name: 'Feb', total: 0 },
-        { name: 'Mar', total: 0 },
-        { name: 'Apr', total: 0 },
-        { name: 'May', total: 30 },
-        { name: 'Jun', total: 50 },
-        { name: 'Jul', total: 20 },
-        { name: 'Aug', total: 0 },
-        { name: 'Sep', total: 0 },
-        { name: 'Oct', total: 0 },
-        { name: 'Nov', total: 0 },
-        { name: 'Dec', total: 30 }
-    ];
+    const totalRevenue = await getTotalRevenue(slug.storeId);
+    const salesCount = await getSalesCount(slug.storeId);
+    const stockCount = await getStockCount(slug.storeId)
+    const graphRevenue = await getGraphRevenue(slug.storeId)
 
 
     return (

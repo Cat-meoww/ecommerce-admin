@@ -1,7 +1,7 @@
-import Stripe from "stripe";
+// import Stripe from "stripe";
 import { NextResponse } from "next/server";
 
-import { stripe } from "@/lib/stripe";
+import { razorpay } from "@/lib/razorpay";
 import prismadb from "@/lib/prismadb";
 
 const corsHeaders = {
@@ -16,7 +16,7 @@ export async function OPTIONS() {
 
 export async function POST(
     req: Request,
-    { params }: { params: { storeId: string } }
+    { params }: { params: Promise<{ storeId: string }> }
 ) {
     const { productIds } = await req.json();
 
@@ -32,27 +32,27 @@ export async function POST(
         }
     });
 
-    const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+    // const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
 
 
 
 
-    products.forEach(product => {
-        line_items.push({
-            quantity: 1,
-            price_data: {
-                currency: "INR",
-                product_data: {
-                    name: product.name
-                },
-                unit_amount: product.price.toNumber() * 100
-            }
-        });
-    });
+    // products.forEach(product => {
+    //     line_items.push({
+    //         quantity: 1,
+    //         price_data: {
+    //             currency: "INR",
+    //             product_data: {
+    //                 name: product.name
+    //             },
+    //             unit_amount: product.price.toNumber() * 100
+    //         }
+    //     });
+    // });
 
     const order = await prismadb.order.create({
         data: {
-            storeId: params.storeId,
+            storeId: (await params).storeId,
             isPaid: false,
             orderItems: {
                 create: products.map((product) => {
@@ -73,22 +73,28 @@ export async function POST(
         }
     });
 
-    const session = await stripe.checkout.sessions.create({
-        line_items,
-        mode: "payment",
-        billing_address_collection: "required",
-        phone_number_collection: {
-            enabled: true
-        },
-        success_url: `${process.env.FRONTEND_STORE_URL}/cart?success=1`,
-        cancel_url: `${process.env.FRONTEND_STORE_URL}/cart?canceled=1`,
-        metadata: {
-            orderId: order.id
-        }
-    });
+    razorpay.orders.create({
+        amount: Number(order.total),
+        currency: "INR",
+        receipt: order.id,
+    })
+
+    // const session = await stripe.checkout.sessions.create({
+    //     line_items,
+    //     mode: "payment",
+    //     billing_address_collection: "required",
+    //     phone_number_collection: {
+    //         enabled: true
+    //     },
+    //     success_url: `${process.env.FRONTEND_STORE_URL}/cart?success=1`,
+    //     cancel_url: `${process.env.FRONTEND_STORE_URL}/cart?canceled=1`,
+    //     metadata: {
+    //         orderId: order.id
+    //     }
+    // });
 
     return NextResponse.json(
-        { url: session.url },
+        { url: '', order },
         {
             headers: corsHeaders
         }

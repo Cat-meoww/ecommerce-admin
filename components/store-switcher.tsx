@@ -1,4 +1,3 @@
-
 'use client'
 
 import { Store } from "@prisma/client";
@@ -65,6 +64,7 @@ export default function StoreSwitcher({
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0">
+
                 <Command>
                     <CommandInput placeholder="Search store..." className="h-9" />
                     <CommandList>
