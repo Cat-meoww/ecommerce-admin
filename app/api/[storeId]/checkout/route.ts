@@ -4,6 +4,12 @@ import { NextResponse } from "next/server";
 import { razorpay } from "@/lib/razorpay";
 import prismadb from "@/lib/prismadb";
 
+
+interface cartItem {
+    id: string,
+    quantity: number
+}
+
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -18,83 +24,71 @@ export async function POST(
     req: Request,
     { params }: { params: Promise<{ storeId: string }> }
 ) {
-    const { productIds } = await req.json();
+    const cart: cartItem[] = await req.json();
 
-    if (!productIds || productIds.length === 0) {
-        return new NextResponse("Product ids are required", { status: 400 });
+    if (!cart || cart.length === 0) {
+        return new NextResponse("Required atleast one cart item", { status: 400 });
     }
 
     const products = await prismadb.product.findMany({
         where: {
             id: {
-                in: productIds
+                in: cart.map((item) => item.id)
             }
         }
     });
 
-    // const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
 
+    const orderItems = cart.map((cartItem) => {
+        const product = products.find((product) => product.id === cartItem.id);
+        if (!product) {
+            throw new Error(`Product with id ${cartItem.id} not found`);
+        }
+        return {
+            product: {
+                connect: {
+                    id: product.id
+                }
+            },
+            quantity: cartItem.quantity,
+            price: product.price,
+            subTotal: Number(product.price) * cartItem.quantity
+        };
+    });
 
-
-
-    // products.forEach(product => {
-    //     line_items.push({
-    //         quantity: 1,
-    //         price_data: {
-    //             currency: "INR",
-    //             product_data: {
-    //                 name: product.name
-    //             },
-    //             unit_amount: product.price.toNumber() * 100
-    //         }
-    //     });
-    // });
+    const total = orderItems.reduce((sum, item) => sum + item.subTotal, 0);
 
     const order = await prismadb.order.create({
         data: {
             storeId: (await params).storeId,
             isPaid: false,
             orderItems: {
-                create: products.map((product) => {
-
-                    return {
-                        product: {
-                            connect: {
-                                id: product.id
-                            }
-                        },
-                        quantity: 1,
-                        price: product.price,
-                        subTotal: Number(product.price) * 1
-                    };
-                })
+                create: orderItems
             },
-            total: 30,
+            total: total,
         }
     });
 
-    razorpay.orders.create({
-        amount: Number(order.total),
+
+
+
+
+    const payment = await razorpay.orders.create({
+        amount: Number(order.total) * 100,
         currency: "INR",
         receipt: order.id,
     })
 
-    // const session = await stripe.checkout.sessions.create({
-    //     line_items,
-    //     mode: "payment",
-    //     billing_address_collection: "required",
-    //     phone_number_collection: {
-    //         enabled: true
-    //     },
-    //     success_url: `${process.env.FRONTEND_STORE_URL}/cart?success=1`,
-    //     cancel_url: `${process.env.FRONTEND_STORE_URL}/cart?canceled=1`,
-    //     metadata: {
-    //         orderId: order.id
-    //     }
-    // });
+    await prismadb.order.update({
+        where: { id: order.id },
+        data: { razorpayOrderId: payment.id }
+    });
+
+
+
 
     return NextResponse.json(
-        { url: '', order },
+        { order, payment },
         {
             headers: corsHeaders
         }

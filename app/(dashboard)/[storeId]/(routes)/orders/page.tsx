@@ -11,7 +11,8 @@ interface PageProps {
 const OrdersPage = async ({ params }: PageProps) => {
     const orders = await prismadb.order.findMany({
         where: {
-            storeId: (await params).storeId
+            storeId: (await params).storeId,
+            isPaid:true,
         },
         include: {
             orderItems: {
