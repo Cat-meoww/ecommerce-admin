@@ -76,3 +76,13 @@ body {
     @apply bg-background text-foreground;
   }
 }
+::-webkit-scrollbar {
+  height: .25rem;
+  width: .25rem;
+  background-color: hsla(0,0%,45%,.2)
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background-color: hsla(0,0%,45%,.5)
+}

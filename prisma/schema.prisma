@@ -26,6 +26,7 @@ model Store {
   colors     Color[]     @relation("StoreToColor")
   products   Product[]   @relation("StoreToProduct")
   Order      Order[]     @relation("StoreToOrder")
+  blogs      Blog[]      @relation("StoreToBlog")
 }
 
 model Billboard {
@@ -160,4 +161,16 @@ model OrderItem {
 
   @@index([orderId])
   @@index([productId])
+}
+
+model Blog {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  storeId   String
+  store     Store    @relation("StoreToBlog", fields: [storeId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([storeId])
 }
