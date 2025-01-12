@@ -14,7 +14,7 @@ export type TableColumn = {
 
 export const columns: ColumnDef<TableColumn>[] = [
     {
-        accessorKey: "label",
+        accessorKey: "title",
         header: "Title",
     },
     {

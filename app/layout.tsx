@@ -25,18 +25,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body
-          className={`${inter.className} antialiased`}
-        >
+
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${inter.className} antialiased`}
+      >
+        <ClerkProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
             <ModalProvider />
             {children}
             <Toaster />
           </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkProvider>
+      </body>
+    </html>
+
   );
 }

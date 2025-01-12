@@ -166,7 +166,7 @@ model OrderItem {
 model Blog {
   id        String   @id @default(uuid())
   title     String
-  content   String
+  content   String   @db.LongText
   storeId   String
   store     Store    @relation("StoreToBlog", fields: [storeId], references: [id])
   createdAt DateTime @default(now())

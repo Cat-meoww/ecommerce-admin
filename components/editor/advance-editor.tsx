@@ -5,7 +5,8 @@ import {
     EditorCommandItem,
     EditorCommandEmpty,
     EditorCommandList,
-    JSONContent
+    JSONContent,
+    type EditorInstance,
 } from "novel";
 import { useEffect, useState } from "react";
 import { defaultExtensions } from "./extensions";
@@ -18,12 +19,18 @@ import { TextButtons } from "./selectors/text-buttons";
 import { ExtraSelector } from "./selectors/extra-format";
 import { handleImageDrop, handleImagePaste } from "novel/plugins";
 import { uploadFn } from "./image-upload";
-import { slashCommand, suggestionItems } from "./slash-command";
+import { useDebouncedCallback } from "use-debounce";
+import { slashCommand, suggestionItems, TableItems } from "./slash-command";
 import { ImageResizer, handleCommandNavigation } from "novel/extensions";
-
+type EditorProps = {
+    data: string | null,
+    onChange: (data: string) => void;
+}
 
 const extensions = [...defaultExtensions, slashCommand];
-const TailwindEditor = () => {
+
+
+const TailwindEditor = ({ data, onChange }: EditorProps) => {
     const [mount, setMount] = useState(false);
     const [content, setContent] = useState<JSONContent>();
     const [openNode, setOpenNode] = useState(false);
@@ -32,9 +39,19 @@ const TailwindEditor = () => {
     const [openHighlight, setOpenHighlight] = useState(false);
     const [openExtra, setOpenExtra] = useState(false);
 
+    const debouncedUpdates = useDebouncedCallback(async (editor: EditorInstance) => {
+        const json = editor.getJSON();
+
+        onChange(JSON.stringify(json))
+    }, 500);
+
     useEffect(() => {
         setMount(true);
+        if (data) {
+            setContent(JSON.parse(data) as JSONContent);
+        }
     }, [])
+
     if (!mount) return null;
 
     return (
@@ -43,47 +60,65 @@ const TailwindEditor = () => {
                 className="border p-4 rounded-xl min-h-[50vh]"
                 extensions={extensions}
                 initialContent={content}
+                immediatelyRender={false}
                 editorProps={{
                     handleDOMEvents: {
                         keydown: (_view, event) => handleCommandNavigation(event),
                     },
                     handlePaste: (view, event) => handleImagePaste(view, event, uploadFn),
-                    handleDrop: (view, event, _slice, moved) =>
-                        handleImageDrop(view, event, moved, uploadFn),
+                    handleDrop: (view, event, _slice, moved) => handleImageDrop(view, event, moved, uploadFn),
                     attributes: {
                         class: `prose prose-lg dark:prose-invert prose-headings:font-title font-default focus:outline-none max-w-full`,
                     },
                 }}
                 onUpdate={({ editor }) => {
-                    const json = editor.getJSON();
-                    setContent(json);
+                    debouncedUpdates(editor)
                 }}
                 slotAfter={<ImageResizer />}
             >
-                <EditorCommand className="z-50 h-auto max-h-[330px] overflow-y-auto rounded-md border border-muted bg-background px-1 py-2 shadow-md transition-all">
+                <EditorCommand className="max-w-64 w-[1000vw] z-50 h-auto max-h-[330px] overflow-y-auto rounded-md border border-muted bg-background px-1 py-2 shadow-md transition-all">
                     <EditorCommandEmpty className="px-2 text-muted-foreground">
                         No results
                     </EditorCommandEmpty>
-                    <EditorCommandList>
-                        {suggestionItems.map((item) => (
-                            <EditorCommandItem
-                                value={item.title}
-                                
-                                onCommand={(val) => item.command?.(val)}
-                                className={`flex w-full items-center space-x-2 rounded-md px-2 py-1 text-left text-sm hover:bg-accent aria-selected:bg-accent `}
-                                key={item.title}
-                            >
-                                <div className="flex h-10 w-10 items-center justify-center rounded-md border border-muted bg-background">
+                    <EditorCommandList >
+                        <div className="grid grid-cols-1 gap-0.5">
+
+
+                            <div className="text-neutral-500 text-[0.65rem] col-[1/-1] mx-2 mt-4 font-semibold tracking-wider select-none uppercase first:mt-0.5">
+                                AI
+                            </div>
+                            <div className="text-neutral-500 text-[0.65rem] col-[1/-1] mx-2 mt-4 font-semibold tracking-wider select-none uppercase first:mt-0.5">
+                                Formate
+                            </div>
+                            {suggestionItems.map((item) => (
+                                <EditorCommandItem
+                                    value={item.title}
+
+                                    onCommand={(val) => item.command?.(val)}
+                                    className={`flex w-full items-center space-x-2  px-2 py-1 text-left text-sm hover:bg-accent aria-selected:bg-neutral-100 dark:aria-selected:bg-neutral-900   gap-2 p-1.5 font-medium text-neutral-500 dark:text-neutral-400 bg-transparent  rounded hover:bg-neutral-100 hover:text-neutral-800 dark:hover:bg-neutral-900 dark:hover:text-neutral-200`}
+                                    key={item.title}
+                                >
                                     {item.icon}
-                                </div>
-                                <div>
-                                    <p className="font-medium">{item.title}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        {item.description}
-                                    </p>
-                                </div>
-                            </EditorCommandItem>
-                        ))}
+
+                                    {item.title}
+                                </EditorCommandItem>
+                            ))}
+                            <div className="text-neutral-500 text-[0.65rem] col-[1/-1] mx-2 mt-4 font-semibold tracking-wider select-none uppercase first:mt-0.5">
+                                Insert
+                            </div>
+                            {TableItems.map((item) => (
+                                <EditorCommandItem
+                                    value={item.title}
+                                    onCommand={(val) => item.command?.(val)}
+                                    className={`flex w-full items-center space-x-2  px-2 py-1 text-left text-sm hover:bg-accent aria-selected:bg-neutral-100 dark:aria-selected:bg-neutral-900   gap-2 p-1.5 font-medium text-neutral-500 dark:text-neutral-400 bg-transparent  rounded hover:bg-neutral-100 hover:text-neutral-800 dark:hover:bg-neutral-900 dark:hover:text-neutral-200`}
+                                    key={item.title}
+                                >
+                                    {item.icon}
+
+                                    {item.title}
+                                </EditorCommandItem>
+                            ))}
+                        </div>
                     </EditorCommandList>
                 </EditorCommand>
                 <EditorBubble

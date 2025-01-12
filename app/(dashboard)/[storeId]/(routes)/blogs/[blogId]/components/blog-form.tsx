@@ -1,5 +1,4 @@
-'use client'
-
+"use client";
 import { Button } from "@/components/ui/button"
 import { Heading } from "@/components/ui/heading"
 import { Blog } from "@prisma/client"
@@ -8,7 +7,7 @@ import { Separator } from "@/components/ui/separator"
 import * as z from 'zod'
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
     Form,
     FormControl,
@@ -62,7 +61,7 @@ export const BlogForm: React.FC<ComponentProps> = ({ initialData }) => {
         try {
             setLoading(true);
             if (initialData) {
-                await axios.patch(`/api/${params.storeId}/blogs/${params.billboardId}`, data)
+                await axios.patch(`/api/${params.storeId}/blogs/${params.blogId}`, data)
             } else {
                 await axios.post(`/api/${params.storeId}/blogs`, data)
             }
@@ -87,7 +86,7 @@ export const BlogForm: React.FC<ComponentProps> = ({ initialData }) => {
         try {
             setLoading(true);
 
-            await axios.delete(`/api/${params.storeId}/blogs/${params.billboardId}`)
+            await axios.delete(`/api/${params.storeId}/blogs/${params.blogId}`)
             router.refresh(); //re-sync the server componenent and set initial data
             router.push(`/${params.storeId}/blogs`);
 
@@ -107,8 +106,6 @@ export const BlogForm: React.FC<ComponentProps> = ({ initialData }) => {
 
     }
 
-
-
     const form = useForm<BlogFormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: initialData || {
@@ -116,6 +113,12 @@ export const BlogForm: React.FC<ComponentProps> = ({ initialData }) => {
             content: '',
         }
     });
+
+    useEffect(() => {
+
+    }, []);
+
+
     return (
         <>
             <AlertModal isOpen={open} onClose={() => setOpen(false)} onConfirm={onDelete} loading={loading} />
@@ -132,7 +135,7 @@ export const BlogForm: React.FC<ComponentProps> = ({ initialData }) => {
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full">
 
-                    <div className="grid grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <FormField control={form.control} name="title" render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Title</FormLabel>
@@ -143,8 +146,17 @@ export const BlogForm: React.FC<ComponentProps> = ({ initialData }) => {
                             </FormItem>
                         )} />
                         <div className="col-span-12">
+                            <FormField control={form.control} name="content" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Blog Content</FormLabel>
+                                    <FormControl>
 
-                            <BlogEditor />
+                                        <BlogEditor data={field.value} onChange={(content) => field.onChange(content)} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+
                         </div>
                     </div>
                     <Button disabled={loading} type="submit" className="ml-auto">

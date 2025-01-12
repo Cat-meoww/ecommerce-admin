@@ -27,7 +27,7 @@ export const BlogClient: React.FC<BlogClientProps> = ({ data }) => {
                 </Button>
             </div>
             <Separator />
-            <DataTable columns={columns} data={data} searchKey="label" />
+            <DataTable columns={columns} data={data} searchKey="title" />
             <ApiList entityName="blogs" entityIdName="blogId" />
         </>
     )

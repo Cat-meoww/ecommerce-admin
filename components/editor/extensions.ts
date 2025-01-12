@@ -14,28 +14,25 @@ import {
     TextStyle,
     CodeBlockLowlight,
     HighlightExtension,
+    GlobalDragHandle,
 } from "novel/extensions";
 import Subscript from '@tiptap/extension-subscript'
-import Text from '@tiptap/extension-text'
+
 import Superscript from '@tiptap/extension-superscript'
 import TextAlign from '@tiptap/extension-text-align'
-
-import css from 'highlight.js/lib/languages/css'
-import js from 'highlight.js/lib/languages/javascript'
-import ts from 'highlight.js/lib/languages/typescript'
-import html from 'highlight.js/lib/languages/xml'
-import { createLowlight } from 'lowlight'
+import Focus from '@tiptap/extension-focus'
+import { createLowlight, common } from 'lowlight'
 import { UploadImagesPlugin } from "novel/plugins";
 
 import { cx } from "class-variance-authority";
 
 const aiHighlight = AIHighlight;
-const placeholder = Placeholder.configure({
+const PlaceholderExtension = Placeholder.configure({
     placeholder: ({ node }) => {
         if (node.type.name === "heading") {
             return `Heading ${node.attrs.level}`;
         }
-        return "Type / to browse options";
+        return "Click here to start writing …";
     },
     includeChildren: true,
 });
@@ -128,15 +125,16 @@ const starterKit = StarterKit.configure({
     gapcursor: false,
 });
 
-const lowlight = createLowlight()
-lowlight.register('html', html)
-lowlight.register('css', css)
-lowlight.register('js', js)
-lowlight.register('ts', ts)
+const codeBlockLowlight = CodeBlockLowlight.configure({
+    // configure lowlight: common /  all / use highlightJS in case there is a need to specify certain language grammars only
+    // common: covers 37 language grammars which should be good enough in most cases
+    lowlight: createLowlight(common),
+});
+
 
 export const defaultExtensions = [
     starterKit,
-    placeholder,
+    PlaceholderExtension,
     tiptapLink,
     tiptapImage,
     updatedImage,
@@ -144,9 +142,9 @@ export const defaultExtensions = [
     taskItem,
     horizontalRule,
     aiHighlight,
-    Text,
     TiptapUnderline,
     Color,
+    Focus,
     TextStyle.configure({
         mergeNestedSpanStyles: true
     }),
@@ -155,10 +153,15 @@ export const defaultExtensions = [
     TextAlign.configure({
         types: ['heading', 'paragraph'],
     }),
-    CodeBlockLowlight.configure({
-        lowlight: lowlight,
-    }),
+    codeBlockLowlight,
     HighlightExtension.configure({
         multicolor: true,
     }),
+    GlobalDragHandle.configure({
+        HTMLAttributes: {
+            class: cx("border border-primary rounded-md w-8 h-8"),
+        },
+    }),
+
+
 ];

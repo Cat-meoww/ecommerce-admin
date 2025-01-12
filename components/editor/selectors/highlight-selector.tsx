@@ -24,13 +24,13 @@ const rgbtoHex = (rgb: string) => {
   const [r, g, b] = rgb.slice(4, -1).split(",").map((x) => parseInt(x));
   return `#${(1 << 24) + (r << 16) + (g << 8) + b}`.slice(1);
 };
-const validateHex = (hex: string) => {
-  return /^#[0-9A-F]{6}$/i.test(hex);
+const validateHex = (hex: string | undefined) => {
+  if (hex) return /^#[0-9A-F]{6}$/i.test(hex);
 }
 
 export const HighlightSelector = ({ open, onOpenChange }: HighlightSelectorProps) => {
   const { editor } = useEditor();
-  const [hexcolor, setHexColor] = useState<string>('');
+  const [hexcolor, setHexColor] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const initialColor = editor?.getAttributes("highlight")?.color ?? '';

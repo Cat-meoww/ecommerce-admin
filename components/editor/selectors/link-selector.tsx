@@ -39,15 +39,15 @@ interface LinkSelectorProps {
 export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const { editor } = useEditor();
-   
+
 
     // Autofocus on input by default
     useEffect(() => {
         if (inputRef.current) {
             inputRef.current.focus();
         }
-    });
-    
+    }, []);
+
     if (!editor) return null;
     return (
         <Popover modal={true} open={open} onOpenChange={onOpenChange}>

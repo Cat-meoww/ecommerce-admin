@@ -37,16 +37,16 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         try {
             setLoading(true);
 
-            await axios.delete(`/api/${params.storeId}/billboards/${data.id}`)
+            await axios.delete(`/api/${params.storeId}/blogs/${data.id}`)
             
             router.refresh(); //re-sync the server componenent and set initial data
-            toast.success("Billboard deleted", {
+            toast.success("Blog deleted", {
                 position: "top-center",
             })
 
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
-            toast.error("Make sure you removed all category using this billboard first.", {
+            toast.error("Something went wrong", {
                 position: "bottom-center"
             })
         } finally {
