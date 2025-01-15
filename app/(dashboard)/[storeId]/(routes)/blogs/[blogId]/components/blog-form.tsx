@@ -21,7 +21,7 @@ import { toast } from "sonner"
 import axios from "axios"
 import { useParams, useRouter } from "next/navigation"
 import { AlertModal } from "@/components/modals/alert-modal"
-import BlogEditor from "@/components/editor/advance-editor"
+import BlogEditor from "@/components/editor/BlockEditor"
 
 const formSchema = z.object({
     title: z.string().min(1),
@@ -151,7 +151,9 @@ export const BlogForm: React.FC<ComponentProps> = ({ initialData }) => {
                                     <FormLabel>Blog Content</FormLabel>
                                     <FormControl>
 
-                                        <BlogEditor data={field.value} onChange={(content) => field.onChange(content)} />
+                                        <BlogEditor />
+
+                                        {/* <BlogEditor data={field.value} onChange={(content) => field.onChange(content)} /> */}
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
