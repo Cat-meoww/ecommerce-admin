@@ -9,10 +9,12 @@ import {
     ListOrdered,
     Text,
     Quote,
+    Minus,
+    Book
 } from "lucide-react";
 import { createSuggestionItems } from "novel/extensions";
 import { Command, renderItems } from "novel/extensions";
-import { uploadFn } from "./image-upload";
+// import { uploadFn } from "./image-upload";
 
 export const suggestionItems = createSuggestionItems([
     {
@@ -123,34 +125,42 @@ export const suggestionItems = createSuggestionItems([
 
 ]);
 export const TableItems = createSuggestionItems([
-    // {
-    //     title: "Table",
-    //     description: "Add a table to your document.",
-    //     searchTerms: ["table"],
-    //     icon: <Table size={16} />,
-    //     command: ({ editor, range }) =>
-    //         editor.chain().focus().deleteRange(range).toggleCodeBlock().run(),
-    // },
+
+
     {
         title: "Image",
         description: "Upload an image from your computer.",
         searchTerms: ["photo", "picture", "media"],
         icon: <ImageIcon size={16} />,
         command: ({ editor, range }) => {
-            editor.chain().focus().deleteRange(range).run();
-            // upload image
-            const input = document.createElement("input");
-            input.type = "file";
-            input.accept = "image/*";
-            input.onchange = async () => {
-                if (input.files?.length) {
-                    const file = input.files[0];
-                    const pos = editor.view.state.selection.from;
-                    uploadFn(file, editor.view, pos);
-                }
-            };
-            input.click();
+            editor.chain().focus().deleteRange(range).setImageUpload().run();
+            // // upload image
+            // const input = document.createElement("input");
+            // input.type = "file";
+            // input.accept = "image/*";
+            // input.onchange = async () => {
+            //     if (input.files?.length) {
+            //         const file = input.files[0];
+            //         const pos = editor.view.state.selection.from;
+            //         uploadFn(file, editor.view, pos);
+            //     }
+            // };
+            // input.click();
         },
+    },
+    {
+        title: "Horizontal Rule",
+        description: "Insert a horizontal divider",
+        searchTerms: ["hr"],
+        icon: <Minus size={16} />,
+        command: ({ editor, range }) => editor.chain().focus().deleteRange(range).setHorizontalRule().run()
+    },
+    {
+        title: "Table of Contents",
+        description: "Insert a horizontal divider",
+        searchTerms: ["toc"],
+        icon: <Book size={16} />,
+        command: ({ editor, range }) => editor.chain().focus().deleteRange(range).insertTableOfContents().run()
     },
 ]);
 

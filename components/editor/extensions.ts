@@ -2,7 +2,7 @@
 import {
     TiptapImage,
     TiptapLink,
-    UpdatedImage,
+    // UpdatedImage,
     TaskList,
     TaskItem,
     HorizontalRule,
@@ -16,6 +16,8 @@ import {
     HighlightExtension,
     GlobalDragHandle,
 } from "novel/extensions";
+
+
 import Subscript from '@tiptap/extension-subscript'
 
 import Superscript from '@tiptap/extension-superscript'
@@ -25,16 +27,21 @@ import { createLowlight, common } from 'lowlight'
 import { UploadImagesPlugin } from "novel/plugins";
 
 import { cx } from "class-variance-authority";
+import { ImageBlock } from "./components/ImageBlock";
+import { ImageUpload } from "./components/ImageUpload";
+import TableOfContents from "@tiptap-pro/extension-table-of-contents";
+import { TableOfContentsNode } from "./components/TableOfContentsNode";
 
 const aiHighlight = AIHighlight;
 const PlaceholderExtension = Placeholder.configure({
+    includeChildren: true,
+    showOnlyCurrent: false,
     placeholder: ({ node }) => {
         if (node.type.name === "heading") {
             return `Heading ${node.attrs.level}`;
         }
         return "Click here to start writing …";
     },
-    includeChildren: true,
 });
 const tiptapLink = TiptapLink.configure({
     HTMLAttributes: {
@@ -59,11 +66,11 @@ const tiptapImage = TiptapImage.extend({
     },
 });
 
-const updatedImage = UpdatedImage.configure({
-    HTMLAttributes: {
-        class: cx("rounded-lg border border-muted"),
-    },
-});
+// const updatedImage = UpdatedImage.configure({
+//     HTMLAttributes: {
+//         class: cx("rounded-lg border border-muted"),
+//     },
+// });
 
 const taskList = TaskList.configure({
     HTMLAttributes: {
@@ -137,7 +144,7 @@ export const defaultExtensions = [
     PlaceholderExtension,
     tiptapLink,
     tiptapImage,
-    updatedImage,
+    // updatedImage,
     taskList,
     taskItem,
     horizontalRule,
@@ -145,6 +152,8 @@ export const defaultExtensions = [
     TiptapUnderline,
     Color,
     Focus,
+    ImageUpload,
+    ImageBlock,
     TextStyle.configure({
         mergeNestedSpanStyles: true
     }),
@@ -159,9 +168,11 @@ export const defaultExtensions = [
     }),
     GlobalDragHandle.configure({
         HTMLAttributes: {
-            class: cx("border border-primary rounded-md w-8 h-8"),
+            class: cx("border border-primary rounded-md w-8 h-8 bg-red"),
         },
     }),
+    TableOfContents,
+    TableOfContentsNode
 
 
 ];

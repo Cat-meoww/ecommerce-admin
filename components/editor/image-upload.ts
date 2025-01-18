@@ -2,13 +2,13 @@ import { createImageUpload } from "novel/plugins";
 import { toast } from "sonner";
 
 const onUpload = (file: File) => {
-  const promise = fetch("/api/upload", {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", "your_upload_preset"); // Replace with your Cloudinary upload preset
+
+  const promise = fetch("https://api.cloudinary.com/v1_1/your_cloud_name/image/upload", { // Replace with your Cloudinary cloud name
     method: "POST",
-    headers: {
-      "content-type": file?.type || "application/octet-stream",
-      "x-vercel-filename": file?.name || "image.png",
-    },
-    body: file,
+    body: formData,
   });
 
   return new Promise((resolve) => {
@@ -16,19 +16,13 @@ const onUpload = (file: File) => {
       promise.then(async (res) => {
         // Successfully uploaded image
         if (res.status === 200) {
-          const { url }: { url: string } = await res.json();
+          const { secure_url }: { secure_url: string } = await res.json();
           // preload the image
           const image = new Image();
-          image.src = url;
+          image.src = secure_url;
           image.onload = () => {
-            resolve(url);
+            resolve(secure_url);
           };
-          // No blob store configured
-        } else if (res.status === 401) {
-          resolve(file);
-          throw new Error(
-            "`BLOB_READ_WRITE_TOKEN` environment variable not found, reading image locally instead.",
-          );
           // Unknown error
         } else {
           throw new Error(`Error uploading image. Please try again.`);
